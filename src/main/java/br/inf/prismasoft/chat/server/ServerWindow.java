@@ -4,23 +4,12 @@ import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.GridLayout;
-import java.awt.Toolkit;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.ObjectInputStream;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.net.InetAddress;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ResourceBundle;
-import java.util.Vector;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -36,17 +25,15 @@ import br.inf.prismasoft.chat.utils.DimensionUtils;
 
 public class ServerWindow extends JFrame {
 	
-	private String logFile = "chat.log";
+	private String logFile;
 
-	private JFileChooser save = new JFileChooser();
+	private JFileChooser save;
 	
-	private SimpleDateFormat data = new SimpleDateFormat("dd-MM-yyyy");
-	
-	private Calendar calendario = Calendar.getInstance();
+	private DateTimeFormatter data;
 	
 	private int port, backlog;
 	
-	private JScrollPane scroll;
+	private JScrollPane scrLog;
 	
 	private JLabel lIcon;
 	
@@ -55,6 +42,10 @@ public class ServerWindow extends JFrame {
 	private JPanel pLog, pCom, pBody;
 	
 	private JButton bConecta, bSair, bsalvar;
+	
+	public ServerWindow() {
+		mostraSplash();
+	}
 	
 	public void inicializa() {
 		setTitle("Pifuze Server v0.4b");
@@ -68,31 +59,26 @@ public class ServerWindow extends JFrame {
 		log = new JTextArea();
 		lIcon = new JLabel(new ImageIcon(this.getClass().getResource("/images/Server.jpg").getPath()));
 		log.setEditable(false);
-		scroll = new JScrollPane(log);
-		scroll.setAutoscrolls(true);
-		scroll.setPreferredSize(new Dimension(420, 400));
+		scrLog = new JScrollPane(log);
+		scrLog.setAutoscrolls(true);
+		scrLog.setPreferredSize(new Dimension(420, 400));
 		bConecta = new JButton("Conectar");
 		bSair = new JButton("Sair");
 		bsalvar = new JButton("Salvar Log");
+		save = new JFileChooser();
 
 		bConecta.addActionListener(e -> go());
 		
 		bSair.addActionListener(e -> System.exit(0));
 		
 		bsalvar.addActionListener(e -> {
-			File file = new File("CHAT_log_"
-					+ (String) data.format(calendario.getTime()));
+			File file = new File("CHAT_log_" + LocalDate.now().format(data));
 			save.setSelectedFile(file);
-			int returnVal = save.showSaveDialog(ServerWindow.this); // save
-																	// dialog
-																	// box
+			int returnVal = save.showSaveDialog(ServerWindow.this);
 			if (returnVal == JFileChooser.APPROVE_OPTION) {
 				try {
 					file = save.getSelectedFile();
-					FileWriter outputStream = new FileWriter(file.getPath()
-							+ ".rtf"); // saves the text into a prasanna file,
-										// but you can change it to txt for
-										// normal notepad like text files
+					FileWriter outputStream = new FileWriter(file.getPath() + ".rtf");
 					outputStream.write(log.getText());
 					outputStream.close();
 				} catch (IOException ioe) {
@@ -105,10 +91,13 @@ public class ServerWindow extends JFrame {
 		pCom.add(bsalvar);
 		pCom.add(bSair);
 		add(lIcon, BorderLayout.WEST);
-		pLog.add(scroll, BorderLayout.CENTER);
+		pLog.add(scrLog, BorderLayout.CENTER);
 		pBody.add(pLog, BorderLayout.CENTER);
 		pBody.add(pCom, BorderLayout.SOUTH);
 		add(pBody, BorderLayout.CENTER);
+		
+		logFile = "chat.log";
+		data = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 
 		DimensionUtils.setBounds(this, 640, 505);
 		setVisible(true);
@@ -130,18 +119,12 @@ public class ServerWindow extends JFrame {
 	}
 
 	public void mostraSplash() {
-		JDialog splashScreen = new JDialog();
-		JLabel splash;
-		splash = new JLabel(new ImageIcon(this.getClass().getResource("/images/SplashServer.jpg").getPath()));
-		Container c = splashScreen.getContentPane();
-		c.add(splash);
-		DimensionUtils.setBounds(this, 0, 0);
-		splashScreen.setUndecorated(true);
-		splashScreen.pack();
+		JDialog splashScreen = new ServerSplash();
+		
 		splashScreen.setVisible(true);
 		try {
 			synchronized (splashScreen) {
-				splashScreen.wait(2 * 1000);
+				splashScreen.wait(3 * 1000);
 			}
 		} catch (InterruptedException e) {
 		}

@@ -8,12 +8,14 @@ import javax.swing.JLabel;
 
 import br.inf.prismasoft.chat.utils.DimensionUtils;
 
-public class SplashScreen extends JDialog {
+public class ClientSplash extends JDialog {
+	
+	private JLabel splash;
 	
 	private static final String SPLASH_IMAGE = "/images/splash.jpg";
 
-	public SplashScreen() {
-		JLabel splash = new JLabel(new ImageIcon(this.getClass().getResource(SPLASH_IMAGE).getPath()));
+	public ClientSplash() {
+		splash = new JLabel(new ImageIcon(this.getClass().getResource(SPLASH_IMAGE).getPath()));
 		
 		Container c = getContentPane();
 		

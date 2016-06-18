@@ -544,7 +544,7 @@ public class ClientWindow extends JFrame {
 	}
 	
 	public void mostraSplash() {
-		JDialog splashScreen = new SplashScreen();
+		JDialog splashScreen = new ClientSplash();
 
 		splashScreen.setVisible(true);
 		try {
